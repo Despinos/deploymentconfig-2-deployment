@@ -137,9 +137,13 @@ public class DeploymentResource {
             // 7. Remove spec.triggers
             spec.remove("triggers");
 
+            // 8. Remove spec.test
+            spec.remove("test");
 
-            // 8. Remove status block if it exists
+
+            // 9. Remove status block if it exists
             dcMap.remove("status");
+            
         }
 
         // Convert back to YAML
