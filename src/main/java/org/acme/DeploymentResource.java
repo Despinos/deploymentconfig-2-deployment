@@ -53,6 +53,7 @@ public class DeploymentResource {
         // 4. Ensure spec.selector.matchLabels is not empty and matches spec.template.metadata.labels
         Map<String, Object> spec = (Map<String, Object>) dcMap.get("spec");
         if (spec != null) {
+
             Map<String, Object> selector = (Map<String, Object>) spec.get("selector");
             if (selector == null) {
                 selector = new java.util.HashMap<>();
@@ -96,11 +97,46 @@ public class DeploymentResource {
                 }
             }
 
-            // 6. Remove spec.triggers
+            // 6. Modify spec.strategy
+            Map<String, Object> strategy = (Map<String, Object>) spec.get("strategy");
+            if (strategy != null) {
+                // strategy: replace Rolling with RollingUpdate
+                String type = (String) strategy.get("type");
+                if ("Rolling".equals(type)) {
+                strategy.put("type", "RollingUpdate");
+                }
+
+                // strategy: modify rollingParams
+                Map<String, Object> rollingParams = (Map<String, Object>) strategy.get("rollingParams");
+                if (rollingParams != null) {
+                    // Remove spec.strategy.rollingParams.updatePeriodSeconds
+                    rollingParams.remove("updatePeriodSeconds");
+
+                    // Remove spec.strategy.rollingParams.intervalSeconds
+                    rollingParams.remove("intervalSeconds");
+
+                    // Remove spec.strategy.rollingParams.timeoutSeconds
+                    rollingParams.remove("timeoutSeconds");
+                }
+
+                //replace rollingParams with rollingUpdate
+                Map<String, Object> rollingUpdate = rollingParams;
+                if (rollingUpdate != null) {
+                    strategy.put("rollingUpdate", rollingUpdate);
+                }
+                strategy.remove("rollingParams");
+
+                // strategy: remove spec.strategy.resources
+                strategy.remove("resources");
+ 
+                // strategy: remove spec.strategy.activeDeadlineSeconds
+                strategy.remove("activeDeadlineSeconds");
+            }
+            
+
+            // 7. Remove spec.triggers
             spec.remove("triggers");
 
-            // 7. Remove spec.strategy
-            spec.remove("strategy");
 
             // 8. Remove status block if it exists
             dcMap.remove("status");
