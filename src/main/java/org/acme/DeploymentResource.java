@@ -7,6 +7,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.DumperOptions;
 
 import java.util.Map;
 
@@ -17,7 +18,14 @@ public class DeploymentResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)  // Now returning plain text
     public Response createDeploymentConfig(String dcYaml) throws Exception {
-        Yaml yaml = new Yaml();
+
+        // Set dummper options
+        DumperOptions options = new DumperOptions();
+        options.setIndent(2);
+        options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+ 
+        Yaml yaml = new Yaml(options);
         Map<String, Object> dcMap = yaml.load(dcYaml);
 
         // 1. Change apiVersion
