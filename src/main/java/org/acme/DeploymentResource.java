@@ -54,13 +54,19 @@ public class DeploymentResource {
         Map<String, Object> spec = (Map<String, Object>) dcMap.get("spec");
         if (spec != null) {
 
+            // Store selector values because select will be cleared
+            Map<String, Object> selectorBackup = (Map<String, Object>) spec.get("selector");
+
             Map<String, Object> selector = (Map<String, Object>) spec.get("selector");
             if (selector == null) {
                 selector = new java.util.HashMap<>();
                 spec.put("selector", selector);
+            } else {
+                // Remove old labels from selector
+                selector.clear();
             }
 
-            Map<String, Object> matchLabels = (Map<String, Object>) selector.get("matchLabels");
+            Map<String, Object> matchLabels = (Map<String, Object>) selectorBackup.get("matchLabels");
             if (matchLabels == null) {
                 matchLabels = new java.util.HashMap<>();
                 selector.put("matchLabels", matchLabels);
